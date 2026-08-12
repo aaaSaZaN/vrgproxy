@@ -1,0 +1,315 @@
+# Сгенерировано tools/build_base_config.py — вручную не править.
+find-process-mode: 'off'
+enable-process: false
+mixed-port: 7890
+allow-lan: true
+bind-address: '*'
+lan-allowed-ips:
+- 0.0.0.0/0
+- ::/0
+skip-auth-prefixes:
+- 127.0.0.1/32
+mode: rule
+log-level: info
+external-controller: 127.0.0.1:9090
+keep-alive-interval: 120
+keep-alive-idle: 120
+unified-delay: true
+tcp-concurrent: true
+ipv6: false
+profile:
+  store-selected: false
+  store-fake-ip: false
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: false
+  sniff:
+    HTTP:
+      ports:
+      - 80
+      - 8080-8880
+      override-destination: true
+    TLS:
+      ports:
+      - 443
+      - 8443
+    QUIC:
+      ports:
+      - 443
+      - 8443
+  skip-domain:
+  - +.push.apple.com
+dns:
+  enable: true
+  ipv6: false
+  use-hosts: true
+  enhanced-mode: redir-host
+  cache-algorithm: arc
+  prefer-h3: false
+  default-nameserver:
+  - 77.88.8.8
+  - 77.88.8.1
+  - 1.1.1.1
+  nameserver:
+  - https://dns.google/dns-query
+  - https://cloudflare-dns.com/dns-query
+  proxy-server-nameserver:
+  - 77.88.8.8
+  - 1.1.1.1
+  nameserver-policy:
+    '*.in-addr.arpa,*.ip6.arpa':
+    - rcode://name_error
+    '*.local,*.lan,*._udp,*._tcp':
+    - rcode://name_error
+rule-providers:
+  geosite-meta:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/meta.mrs
+    path: ./rule-sets/geosite-meta.mrs
+    interval: 86400
+  geosite-oculus:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/oculus.mrs
+    path: ./rule-sets/geosite-oculus.mrs
+    interval: 86400
+  geosite-facebook:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/facebook.mrs
+    path: ./rule-sets/geosite-facebook.mrs
+    interval: 86400
+  geosite-instagram:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/instagram.mrs
+    path: ./rule-sets/geosite-instagram.mrs
+    interval: 86400
+  geosite-whatsapp:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/whatsapp.mrs
+    path: ./rule-sets/geosite-whatsapp.mrs
+    interval: 86400
+  geosite-youtube:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/youtube.mrs
+    path: ./rule-sets/geosite-youtube.mrs
+    interval: 86400
+  geosite-google:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google.mrs
+    path: ./rule-sets/geosite-google.mrs
+    interval: 86400
+  geosite-google-play:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google-play.mrs
+    path: ./rule-sets/geosite-google-play.mrs
+    interval: 86400
+  geosite-telegram:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs
+    path: ./rule-sets/geosite-telegram.mrs
+    interval: 86400
+  geosite-discord:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/discord.mrs
+    path: ./rule-sets/geosite-discord.mrs
+    interval: 86400
+  geosite-vrchat:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/vrchat.mrs
+    path: ./rule-sets/geosite-vrchat.mrs
+    interval: 86400
+  geosite-vrcdn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/vrcdn.mrs
+    path: ./rule-sets/geosite-vrcdn.mrs
+    interval: 86400
+  geosite-aws:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/aws.mrs
+    path: ./rule-sets/geosite-aws.mrs
+    interval: 86400
+  geosite-amazon:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/amazon.mrs
+    path: ./rule-sets/geosite-amazon.mrs
+    interval: 86400
+  geosite-itchio:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/itchio.mrs
+    path: ./rule-sets/geosite-itchio.mrs
+    interval: 86400
+  geoip-telegram:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/telegram.mrs
+    path: ./rule-sets/geoip-telegram.mrs
+    interval: 86400
+  geoip-facebook:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/facebook.mrs
+    path: ./rule-sets/geoip-facebook.mrs
+    interval: 86400
+  geoip-google:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/google.mrs
+    path: ./rule-sets/geoip-google.mrs
+    interval: 86400
+  geoip-cloudflare:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cloudflare.mrs
+    path: ./rule-sets/geoip-cloudflare.mrs
+    interval: 86400
+proxy-groups:
+- name: VrgProxy
+  type: select
+  use:
+  - subscription
+rules:
+- IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+- IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+- IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+- IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+- IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+- IP-CIDR,169.254.0.0/16,DIRECT,no-resolve
+- IP-CIDR,224.0.0.0/3,DIRECT,no-resolve
+- DOMAIN-SUFFIX,oculus.com,VrgProxy
+- DOMAIN-SUFFIX,oculuscdn.com,VrgProxy
+- DOMAIN-SUFFIX,oculusvr.com,VrgProxy
+- DOMAIN-SUFFIX,ocul.us,VrgProxy
+- DOMAIN-SUFFIX,meta.com,VrgProxy
+- DOMAIN-SUFFIX,atmeta.com,VrgProxy
+- DOMAIN-SUFFIX,meta.ai,VrgProxy
+- DOMAIN-SUFFIX,llama.com,VrgProxy
+- DOMAIN-SUFFIX,facebook.com,VrgProxy
+- DOMAIN-SUFFIX,facebook.net,VrgProxy
+- DOMAIN-SUFFIX,fbcdn.net,VrgProxy
+- DOMAIN-SUFFIX,fbsbx.com,VrgProxy
+- DOMAIN-SUFFIX,fb.com,VrgProxy
+- DOMAIN-SUFFIX,fb.gg,VrgProxy
+- DOMAIN-SUFFIX,facebook-hardware.com,VrgProxy
+- DOMAIN-SUFFIX,workplace.com,VrgProxy
+- RULE-SET,geosite-meta,VrgProxy
+- RULE-SET,geosite-oculus,VrgProxy
+- RULE-SET,geosite-facebook,VrgProxy
+- RULE-SET,geosite-instagram,VrgProxy
+- RULE-SET,geosite-whatsapp,VrgProxy
+- RULE-SET,geosite-youtube,VrgProxy
+- RULE-SET,geosite-google-play,VrgProxy
+- RULE-SET,geosite-google,VrgProxy
+- RULE-SET,geosite-telegram,VrgProxy
+- RULE-SET,geosite-discord,VrgProxy
+- RULE-SET,geosite-vrchat,VrgProxy
+- RULE-SET,geosite-vrcdn,VrgProxy
+- RULE-SET,geosite-aws,VrgProxy
+- RULE-SET,geosite-amazon,VrgProxy
+- RULE-SET,geosite-itchio,VrgProxy
+- DOMAIN-SUFFIX,gstatic.com,VrgProxy
+- DOMAIN-SUFFIX,beatsaver.com,VrgProxy
+- DOMAIN-SUFFIX,beatleader.xyz,VrgProxy
+- DOMAIN-SUFFIX,beatleader.com,VrgProxy
+- DOMAIN-SUFFIX,cloudflarestorage.com,VrgProxy
+- DOMAIN-SUFFIX,akamaihd.net,VrgProxy
+- DOMAIN-SUFFIX,edgecastcdn.net,VrgProxy
+- DOMAIN-SUFFIX,gvt2.com,VrgProxy
+- DOMAIN-SUFFIX,playfabapi.com,VrgProxy
+- DOMAIN-SUFFIX,forefrontvr.com,VrgProxy
+- DOMAIN-SUFFIX,unity3d.com,VrgProxy
+- DOMAIN-SUFFIX,unity.com,VrgProxy
+- DOMAIN-SUFFIX,android.com,VrgProxy
+- DOMAIN-SUFFIX,backend-forefront.be,VrgProxy
+- DOMAIN-SUFFIX,forefront.be,VrgProxy
+- DOMAIN-SUFFIX,vivox.com,VrgProxy
+- DOMAIN-SUFFIX,photonengine.com,VrgProxy
+- DOMAIN-SUFFIX,photonengine.io,VrgProxy
+- DOMAIN-SUFFIX,exitgames.com,VrgProxy
+- DOMAIN-SUFFIX,cloudfront.net,VrgProxy
+- DOMAIN-SUFFIX,amazonaws.com,VrgProxy
+- DOMAIN-SUFFIX,vrcdn.live,VrgProxy
+- DOMAIN-SUFFIX,vrcdn.video,VrgProxy
+- DOMAIN-SUFFIX,vrcdn.cloud,VrgProxy
+- DOMAIN-SUFFIX,gaming-sdk.com,VrgProxy
+- DOMAIN-SUFFIX,scoresaber.com,VrgProxy
+- RULE-SET,geoip-telegram,VrgProxy,no-resolve
+- RULE-SET,geoip-facebook,VrgProxy,no-resolve
+- RULE-SET,geoip-google,VrgProxy,no-resolve
+- RULE-SET,geoip-cloudflare,VrgProxy,no-resolve
+- IP-CIDR,2.17.146.0/24,VrgProxy,no-resolve
+- IP-CIDR,4.144.0.0/12,VrgProxy,no-resolve
+- IP-CIDR,4.207.247.0/24,VrgProxy,no-resolve
+- IP-CIDR,13.36.0.0/14,VrgProxy,no-resolve
+- IP-CIDR,13.56.0.0/14,VrgProxy,no-resolve
+- IP-CIDR,13.107.213.0/24,VrgProxy,no-resolve
+- IP-CIDR,15.224.0.0/16,VrgProxy,no-resolve
+- IP-CIDR,15.236.0.0/16,VrgProxy,no-resolve
+- IP-CIDR,34.8.0.0/16,VrgProxy,no-resolve
+- IP-CIDR,34.64.0.0/10,VrgProxy,no-resolve
+- IP-CIDR,35.176.0.0/12,VrgProxy,no-resolve
+- IP-CIDR,40.113.111.0/24,VrgProxy,no-resolve
+- IP-CIDR,44.216.37.0/24,VrgProxy,no-resolve
+- IP-CIDR,51.44.33.0/24,VrgProxy,no-resolve
+- IP-CIDR,52.96.0.0/12,VrgProxy,no-resolve
+- IP-CIDR,54.196.0.0/15,VrgProxy,no-resolve
+- IP-CIDR,74.125.0.0/16,VrgProxy,no-resolve
+- IP-CIDR,77.90.8.0/24,VrgProxy,no-resolve
+- IP-CIDR,78.111.104.0/24,VrgProxy,no-resolve
+- IP-CIDR,85.236.96.0/19,VrgProxy,no-resolve
+- IP-CIDR,92.122.0.0/15,VrgProxy,no-resolve
+- IP-CIDR,98.82.0.0/16,VrgProxy,no-resolve
+- IP-CIDR,150.171.110.0/24,VrgProxy,no-resolve
+- IP-CIDR,168.172.107.0/24,VrgProxy,no-resolve
+- IP-CIDR,172.232.0.0/15,VrgProxy,no-resolve
+- IP-CIDR,172.234.0.0/16,VrgProxy,no-resolve
+- IP-CIDR,184.27.161.0/24,VrgProxy,no-resolve
+- IP-CIDR,199.232.0.0/16,VrgProxy,no-resolve
+- IP-CIDR,204.79.197.0/24,VrgProxy,no-resolve
+- IP-CIDR,208.115.231.0/24,VrgProxy,no-resolve
+proxy-providers:
+  subscription:
+    type: http
+    url: __SUBSCRIPTION_URL__
+    path: ./providers/subscription.yaml
+    interval: 86400
+    health-check:
+      enable: true
+      url: https://cp.cloudflare.com/generate_204
+      interval: 300
+global-ua: clash.meta/1.19.0
+geo-auto-update: false
