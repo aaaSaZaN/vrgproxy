@@ -1,0 +1,67 @@
+name: Release
+
+# Собирает и подписывает APK по тегу вида v1.0 и прикладывает их к релизу.
+# Ключ подписи в репозитории не хранится — он приходит из секретов.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Собрать ядро mihomo
+        run: |
+          chmod +x tools/build_core.sh
+          ANDROID_NDK="$ANDROID_NDK_LATEST_HOME" tools/build_core.sh
+
+      - name: Восстановить ключ подписи
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > vrgproxy-release.jks
+          cat > keystore.properties <<EOF
+          storeFile=vrgproxy-release.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
+      - name: Собрать APK
+        env:
+          # Ссылка на подписку по умолчанию. Если секрет не задан, поле в
+          # приложении остаётся пустым и ссылку вводят вручную.
+          SUBSCRIPTION_URL: ${{ secrets.SUBSCRIPTION_URL }}
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Убрать ключ
+        if: always()
+        run: rm -f vrgproxy-release.jks keystore.properties
+
+      - name: Приложить к релизу
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/release/*.apk
+          generate_release_notes: true

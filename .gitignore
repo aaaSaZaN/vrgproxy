@@ -1,0 +1,12 @@
+.gradle/
+build/
+.idea/
+local.properties
+
+# Ключ подписи: он в секретах GitHub, в репозитории ему не место.
+keystore.properties
+*.jks
+
+# Ядро mihomo — бинарь на ~50 МБ под каждую архитектуру.
+# Собирается из исходников: tools/build_core.sh
+app/src/main/jniLibs/
