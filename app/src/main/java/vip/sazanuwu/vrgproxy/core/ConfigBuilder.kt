@@ -69,12 +69,17 @@ object ConfigBuilder {
             root.remove("authentication")
         }
 
-        // Куда уходит всё, что не попало в правила.
+        // Всё, что не попало в правила, тоже идёт через сервер.
+        //
+        // Выбора здесь намеренно нет. Конфиг заточен под VR и магазин Meta, и
+        // если сервис заведёт новый домен, которого нет в списке, при обходе
+        // мимо сервера он упрётся в блокировку — а человек решит, что сломалось
+        // приложение. Выигрыш был бы только в скорости для трафика, которого у
+        // шлема почти не бывает.
         val rules = (root["rules"] as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
-        val finalTarget = if (prefs.routeAll) MAIN_GROUP else "DIRECT"
         root["rules"] = rules.filterNot {
             it.substringBefore(',').trim().uppercase() == "MATCH"
-        } + "MATCH,$finalTarget"
+        } + "MATCH,$MAIN_GROUP"
 
         val options = DumperOptions().apply {
             defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
