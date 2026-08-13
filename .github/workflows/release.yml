@@ -41,7 +41,27 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > vrgproxy-release.jks
+          set -eu
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ]; then
+            echo "Не заданы секреты подписи: KEYSTORE_BASE64, KEYSTORE_PASSWORD," >&2
+            echo "KEY_ALIAS, KEY_PASSWORD. Секреты не переносятся при пересоздании" >&2
+            echo "репозитория — заведите их заново." >&2
+            exit 1
+          fi
+
+          # tr -d убирает переносы строк: секрет мог быть вставлен многострочным,
+          # и тогда base64 -d молча выдаёт мусор вместо keystore.
+          printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > vrgproxy-release.jks
+
+          # Проверяем ключ сразу: иначе битый keystore всплывает только через
+          # несколько минут, уже на упаковке APK, и сообщением
+          # "Tag number over 30 is not supported".
+          if ! keytool -list -keystore vrgproxy-release.jks \
+               -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+            echo "Keystore не читается: проверьте KEYSTORE_BASE64 и KEYSTORE_PASSWORD." >&2
+            exit 1
+          fi
+
           cat > keystore.properties <<EOF
           storeFile=vrgproxy-release.jks
           storePassword=$KEYSTORE_PASSWORD
