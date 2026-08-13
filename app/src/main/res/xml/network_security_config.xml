@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Ядро отдаёт своё API по обычному HTTP на 127.0.0.1. С targetSdk 28+ Android
+    режет такой трафик, и на части прошивок это касается даже localhost:
+    запрос падает с "Cleartext HTTP traffic to 127.0.0.1 not permitted",
+    приложение не может достучаться до собственного ядра и показывает,
+    что оно не отвечает.
+
+    Разрешаем незашифрованный HTTP только для петлевых адресов. Наружу
+    cleartext по-прежнему запрещён.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">::1</domain>
+    </domain-config>
+</network-security-config>

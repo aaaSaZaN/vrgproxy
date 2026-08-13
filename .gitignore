@@ -10,3 +10,4 @@ keystore.properties
 # Ядро mihomo — бинарь на ~50 МБ под каждую архитектуру.
 # Собирается из исходников: tools/build_core.sh
 app/src/main/jniLibs/
+.kotlin/
