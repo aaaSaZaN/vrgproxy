@@ -60,8 +60,30 @@ jobs:
         if: always()
         run: rm -f vrgproxy-release.jks keystore.properties
 
+      - name: Подготовить файлы релиза
+        run: |
+          set -eu
+          version="${GITHUB_REF_NAME#v}"
+          src=app/build/outputs/apk/release
+          mkdir -p release
+
+          # Имена как в сборке -> имена, понятные тому, кто скачивает.
+          cp "$src/app-arm64-v8a-release.apk"   "release/VrgProxy-$version-arm64.apk"
+          cp "$src/app-armeabi-v7a-release.apk" "release/VrgProxy-$version-arm32.apk"
+          cp "$src/app-universal-release.apk"   "release/VrgProxy-$version-universal.apk"
+
+          # Проверяем, что собралось ровно три сборки: если одна архитектура
+          # отвалится, релиз должен упасть, а не выйти неполным.
+          count=$(ls -1 release/*.apk | wc -l)
+          if [ "$count" -ne 3 ]; then
+            echo "Ожидалось 3 APK, найдено $count:" >&2
+            ls -la release >&2
+            exit 1
+          fi
+          ls -la release
+
       - name: Приложить к релизу
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/release/*.apk
+          files: release/*.apk
           generate_release_notes: true

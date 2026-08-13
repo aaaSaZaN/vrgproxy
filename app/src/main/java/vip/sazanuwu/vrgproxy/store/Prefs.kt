@@ -21,11 +21,6 @@ class Prefs(context: Context) {
         get() = sp.getInt(KEY_PORT, DEFAULT_PORT)
         set(value) = sp.edit().putInt(KEY_PORT, value).apply()
 
-    /** true — весь трафик клиента идёт через сервер, false — только домены из правил. */
-    var routeAll: Boolean
-        get() = sp.getBoolean(KEY_ROUTE_ALL, true)
-        set(value) = sp.edit().putBoolean(KEY_ROUTE_ALL, value).apply()
-
     var authUser: String
         get() = sp.getString(KEY_AUTH_USER, "")!!
         set(value) = sp.edit().putString(KEY_AUTH_USER, value.trim()).apply()
@@ -63,7 +58,6 @@ class Prefs(context: Context) {
 
         private const val KEY_SUB = "sub_url"
         private const val KEY_PORT = "port"
-        private const val KEY_ROUTE_ALL = "route_all"
         private const val KEY_AUTH_USER = "auth_user"
         private const val KEY_AUTH_PASS = "auth_pass"
         private const val KEY_NODE = "selected_node"

@@ -587,7 +587,6 @@ private fun SettingsSheet(onDismiss: () -> Unit) {
 
     var url by remember { mutableStateOf(prefs.subscriptionUrl) }
     var port by remember { mutableStateOf(prefs.port.toString()) }
-    var routeAll by remember { mutableStateOf(prefs.routeAll) }
     var user by remember { mutableStateOf(prefs.authUser) }
     var pass by remember { mutableStateOf(prefs.authPass) }
 
@@ -621,23 +620,6 @@ private fun SettingsSheet(onDismiss: () -> Unit) {
             )
             Spacer(Modifier.height(16.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("Весь трафик через сервер", fontSize = 15.sp)
-                    Text(
-                        if (routeAll) {
-                            "Надёжно: работает всё, включая незнакомые сайты"
-                        } else {
-                            "Быстрее: через сервер идут только сайты из списка"
-                        },
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
-                Switch(checked = routeAll, onCheckedChange = { routeAll = it })
-            }
-            Spacer(Modifier.height(16.dp))
-
             Text(
                 "Пароль на прокси — нужен только в чужой сети",
                 fontSize = 13.sp,
@@ -665,7 +647,6 @@ private fun SettingsSheet(onDismiss: () -> Unit) {
                 onClick = {
                     prefs.subscriptionUrl = url
                     prefs.port = port.toIntOrNull()?.coerceIn(1024, 65535) ?: 7890
-                    prefs.routeAll = routeAll
                     prefs.authUser = user
                     prefs.authPass = pass
                     ProxyController.applySettingsAndRestart(context)
