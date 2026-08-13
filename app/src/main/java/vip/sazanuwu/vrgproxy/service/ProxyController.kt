@@ -35,6 +35,8 @@ object ProxyController {
     data class Status(
         val state: State = State.STOPPED,
         val ip: String? = null,
+        /** Все адреса, по которым телефон доступен: Wi-Fi, точка доступа, USB. */
+        val addresses: List<NetInfo.Address> = emptyList(),
         val port: Int = Prefs.DEFAULT_PORT,
         val nodes: List<String> = emptyList(),
         val currentNode: String = "",
@@ -89,6 +91,7 @@ object ProxyController {
             it.copy(
                 port = prefs.port,
                 ip = NetInfo.primaryIp(),
+                addresses = NetInfo.localAddresses(),
                 vpnActive = VpnDetector.isVpnActive(appContext)
             )
         }
@@ -129,7 +132,7 @@ object ProxyController {
             api = ClashApi(prefs.apiSecret, apiPort)
             val yaml = ConfigBuilder.build(appContext, prefs, apiPort)
 
-            core.start(yaml, api, prefs.port)
+            core.start(yaml, api, prefs.port, apiPort)
 
             _status.update { it.copy(progress = "Получаю список серверов…") }
             val group = ConfigBuilder.MAIN_GROUP
@@ -150,6 +153,7 @@ object ProxyController {
                 it.copy(
                     state = State.RUNNING,
                     ip = NetInfo.primaryIp(),
+                    addresses = NetInfo.localAddresses(),
                     port = prefs.port,
                     nodes = nodes,
                     currentNode = desired,
@@ -232,6 +236,7 @@ object ProxyController {
                     it.copy(
                         clients = recentClients.size,
                         ip = NetInfo.primaryIp(),
+                        addresses = NetInfo.localAddresses(),
                         vpnActive = VpnDetector.isVpnActive(appContext)
                     )
                 }

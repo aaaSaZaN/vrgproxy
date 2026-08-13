@@ -34,7 +34,7 @@ class MihomoCore(private val context: Context) {
      * Пишет конфиг и поднимает ядро. Возвращает управление, когда RESTful API
      * начал отвечать, — то есть порт уже слушается и клиента можно подключать.
      */
-    fun start(configYaml: String, api: ClashApi, port: Int) {
+    fun start(configYaml: String, api: ClashApi, port: Int, apiPort: Int) {
         stop()
 
         if (!executable.exists()) {
@@ -86,11 +86,13 @@ class MihomoCore(private val context: Context) {
             Thread.sleep(300)
         }
 
+        // Причина — в первой строке: на экране видно именно её, а полный лог
+        // пользователь при желании откроет отдельной кнопкой.
         val reason = api.lastError ?: "причина неизвестна"
         stop()
         throw StartException(
-            "Ядро запустилось, но не отвечает.\n" +
-                "Последняя попытка: $reason\n\n${recentLog().takeLast(600)}"
+            "Ядро работает, но приложение не может к нему подключиться " +
+                "(порт управления $apiPort). $reason"
         )
     }
 

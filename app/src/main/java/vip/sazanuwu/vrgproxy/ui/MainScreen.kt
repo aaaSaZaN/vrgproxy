@@ -3,6 +3,8 @@ package vip.sazanuwu.vrgproxy.ui
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -34,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import vip.sazanuwu.vrgproxy.net.NetInfo
 import vip.sazanuwu.vrgproxy.service.ProxyController
 import vip.sazanuwu.vrgproxy.service.ProxyController.State
 
@@ -187,23 +190,62 @@ private fun AddressCard(status: ProxyController.Status, context: Context) {
     ) {
         Column(Modifier.padding(20.dp)) {
             Text(
-                "Впиши это в настройках Wi-Fi на Quest",
+                "Впиши это в настройках сети на Quest",
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
             Spacer(Modifier.height(14.dp))
 
-            FieldRow("Адрес прокси", status.ip ?: "нет сети", context)
+            val primary = status.addresses.firstOrNull()
+            FieldRow(
+                // Подписываем адрес источником: при поднятой точке доступа и
+                // Wi-Fi одновременно адреса разные, и нужен тот, к которому
+                // подключён шлем.
+                label = primary?.let { "Адрес прокси · ${it.label}" } ?: "Адрес прокси",
+                value = primary?.ip ?: "нет сети",
+                context = context
+            )
             Spacer(Modifier.height(10.dp))
             FieldRow("Порт", status.port.toString(), context)
 
-            if (status.ip == null) {
+            status.addresses.drop(1).forEach { extra ->
+                Spacer(Modifier.height(10.dp))
+                FieldRow("Адрес прокси · ${extra.label}", extra.ip, context)
+            }
+
+            if (status.addresses.isEmpty()) {
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    "Телефон не в Wi-Fi. Подключи телефон и Quest к одной сети " +
-                            "или раздай точку доступа с телефона.",
+                    "Телефон не подключён к сети. Подключи телефон и Quest к одной " +
+                            "сети или раздай точку доступа с телефона.",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.error
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "Роутер не нужен: телефон может раздать свою мобильную сеть " +
+                            "точкой доступа, а Quest подключить к ней.",
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+                Spacer(Modifier.height(8.dp))
+                TextButton(
+                    onClick = { openTetherSettings(context) },
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("Открыть настройки точки доступа", fontSize = 14.sp)
+                }
+
+                Spacer(Modifier.height(6.dp))
+                // Показываем, что видит система: иначе непонятно, телефон правда
+                // не в сети или приложение не распознало интерфейс.
+                Text(
+                    "Что видит приложение:\n${NetInfo.describeInterfaces()}",
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Monospace,
+                    lineHeight = 15.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
             }
         }
@@ -392,7 +434,9 @@ private fun ErrorCard(message: String, onShowLog: () -> Unit) {
         )
     ) {
         Column(Modifier.padding(18.dp)) {
-            Text(message.lineSequence().first(), fontWeight = FontWeight.Medium)
+            // Показываем сообщение целиком: раньше бралась только первая строка,
+            // и причина ошибки до пользователя не доходила.
+            Text(message, fontWeight = FontWeight.Medium, lineHeight = 20.sp)
             Spacer(Modifier.height(8.dp))
             TextButton(onClick = onShowLog) { Text("Показать журнал ядра") }
         }
@@ -638,6 +682,30 @@ private fun SettingsSheet(onDismiss: () -> Unit) {
 }
 
 // ------------------------------------------------------------------ утилиты
+
+/**
+ * Открывает системный экран точки доступа.
+ *
+ * Включить её сама программа не может: Android не даёт обычным приложениям
+ * управлять хотспотом, а startLocalOnlyHotspot поднимает сеть без интернета,
+ * что для раздачи бесполезно. Поэтому просто отводим пользователя куда надо.
+ */
+private fun openTetherSettings(context: Context) {
+    val candidates = listOf(
+        Intent().setClassName("com.android.settings", "com.android.settings.TetherSettings"),
+        Intent(Settings.ACTION_WIRELESS_SETTINGS),
+        Intent(Settings.ACTION_SETTINGS)
+    )
+    for (intent in candidates) {
+        try {
+            context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            return
+        } catch (e: Exception) {
+            // Экран называется по-разному у разных производителей — пробуем следующий.
+        }
+    }
+    Toast.makeText(context, "Не удалось открыть настройки", Toast.LENGTH_SHORT).show()
+}
 
 private fun copy(context: Context, value: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
