@@ -34,10 +34,14 @@
         <service
             android:name=".service.ProxyService"
             android:exported="false"
+            android:permission="android.permission.BIND_VPN_SERVICE"
             android:foregroundServiceType="specialUse">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Раздача прокси-сервера в локальную сеть: сокет должен слушать порт, пока приложение свёрнуто" />
+                android:value="Раздача прокси-сервера в локальную сеть и локальный VPN" />
         </service>
     </application>
 </manifest>

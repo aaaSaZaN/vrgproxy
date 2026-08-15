@@ -33,6 +33,11 @@ class Prefs(context: Context) {
         get() = sp.getString(KEY_NODE, "")!!
         set(value) = sp.edit().putString(KEY_NODE, value).apply()
 
+    /** Включать ли локальный VPN на самом телефоне при запуске раздачи. */
+    var useVpnOnDevice: Boolean
+        get() = sp.getBoolean(KEY_VPN_ON_DEVICE, true)
+        set(value) = sp.edit().putBoolean(KEY_VPN_ON_DEVICE, value).apply()
+
     /** Секрет RESTful API ядра. Генерируется один раз на установку. */
     val apiSecret: String
         get() {
@@ -61,6 +66,7 @@ class Prefs(context: Context) {
         private const val KEY_AUTH_USER = "auth_user"
         private const val KEY_AUTH_PASS = "auth_pass"
         private const val KEY_NODE = "selected_node"
+        private const val KEY_VPN_ON_DEVICE = "vpn_on_device"
         private const val KEY_SECRET = "api_secret"
     }
 }

@@ -15,7 +15,8 @@ import android.net.NetworkCapabilities
  */
 object VpnDetector {
 
-    fun isVpnActive(context: Context): Boolean {
+    fun isVpnActive(context: Context, isOwnVpnRunning: Boolean = false): Boolean {
+        if (isOwnVpnRunning) return false
         val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE)
                 as? ConnectivityManager ?: return false
 

@@ -50,6 +50,8 @@ object ProxyController {
         val checking: Boolean = false,
         /** На телефоне поднят сторонний VPN — клиенты снаружи не подключатся. */
         val vpnActive: Boolean = false,
+        /** Работает ли локальный VPN для трафика самого телефона. */
+        val vpnRunning: Boolean = false,
         val error: String? = null,
         val progress: String = ""
     ) {
@@ -68,6 +70,7 @@ object ProxyController {
     private var pollJob: Job? = null
     private var wifiLock: WifiManager.WifiLock? = null
     private var wakeLock: PowerManager.WakeLock? = null
+    private var isOwnVpnRunning: Boolean = false
 
     /** Адрес клиента -> когда его соединения видели в последний раз. */
     private val recentClients = mutableMapOf<String, Long>()
@@ -92,7 +95,18 @@ object ProxyController {
                 port = prefs.port,
                 ip = NetInfo.primaryIp(),
                 addresses = NetInfo.localAddresses(),
-                vpnActive = VpnDetector.isVpnActive(appContext)
+                vpnActive = VpnDetector.isVpnActive(appContext, isOwnVpnRunning),
+                vpnRunning = isOwnVpnRunning
+            )
+        }
+    }
+
+    fun setVpnRunning(running: Boolean) {
+        isOwnVpnRunning = running
+        _status.update {
+            it.copy(
+                vpnRunning = running,
+                vpnActive = VpnDetector.isVpnActive(appContext, running)
             )
         }
     }
@@ -119,7 +133,7 @@ object ProxyController {
         )
     }
 
-    internal suspend fun startInternal() = withContext(Dispatchers.IO) {
+    internal suspend fun startInternal(onCoreReady: (suspend (port: Int) -> Unit)? = null) = withContext(Dispatchers.IO) {
         if (_status.value.state == State.RUNNING || _status.value.state == State.STARTING) return@withContext
 
         _status.update {
@@ -148,6 +162,8 @@ object ProxyController {
             api.selectNode(group, desired)
             prefs.selectedNode = desired
 
+            onCoreReady?.invoke(prefs.port)
+
             acquireLocks()
             _status.update {
                 it.copy(
@@ -158,7 +174,8 @@ object ProxyController {
                     nodes = nodes,
                     currentNode = desired,
                     mainGroup = group,
-                    vpnActive = VpnDetector.isVpnActive(appContext),
+                    vpnActive = VpnDetector.isVpnActive(appContext, isOwnVpnRunning),
+                    vpnRunning = isOwnVpnRunning,
                     error = null,
                     progress = ""
                 )
@@ -190,7 +207,15 @@ object ProxyController {
         releaseLocks()
         recentClients.clear()
         _status.update {
-            it.copy(state = State.STOPPED, clients = 0, up = 0, down = 0, ping = null, progress = "")
+            it.copy(
+                state = State.STOPPED,
+                clients = 0,
+                up = 0,
+                down = 0,
+                ping = null,
+                vpnRunning = false,
+                progress = ""
+            )
         }
     }
 
@@ -237,7 +262,8 @@ object ProxyController {
                         clients = recentClients.size,
                         ip = NetInfo.primaryIp(),
                         addresses = NetInfo.localAddresses(),
-                        vpnActive = VpnDetector.isVpnActive(appContext)
+                        vpnActive = VpnDetector.isVpnActive(appContext, isOwnVpnRunning),
+                        vpnRunning = isOwnVpnRunning
                     )
                 }
                 // Пинг заметно дороже остальных запросов — раз в 30 секунд достаточно.

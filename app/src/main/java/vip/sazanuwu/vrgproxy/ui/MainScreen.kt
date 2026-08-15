@@ -74,7 +74,8 @@ fun MainScreen() {
                 if (status.state == State.RUNNING || status.state == State.STARTING) {
                     ProxyController.requestStop(context)
                 } else {
-                    ProxyController.requestStart(context)
+                    (context as? vip.sazanuwu.vrgproxy.MainActivity)?.startProxyWithVpnCheck()
+                        ?: ProxyController.requestStart(context)
                 }
             }
 
@@ -164,13 +165,17 @@ private fun PowerButton(state: State, onClick: () -> Unit) {
 @Composable
 private fun StateLabel(status: ProxyController.Status) {
     val text = when (status.state) {
-        State.RUNNING -> "Раздача работает"
+        State.RUNNING -> if (status.vpnRunning) {
+            "Работает на телефоне и раздаётся в сеть"
+        } else {
+            "Раздача работает"
+        }
         State.STARTING -> status.progress.ifEmpty { "Запускаю…" }
         State.ERROR -> "Не удалось запустить"
         State.STOPPED -> if (ProxyController.prefs().subscriptionUrl.isBlank()) {
             "Открой «Дополнительно» и вставь ссылку на подписку"
         } else {
-            "Нажми, чтобы раздать интернет"
+            "Нажми, чтобы включить на телефоне и раздать"
         }
     }
     Text(
@@ -587,6 +592,7 @@ private fun SettingsSheet(onDismiss: () -> Unit) {
 
     var url by remember { mutableStateOf(prefs.subscriptionUrl) }
     var port by remember { mutableStateOf(prefs.port.toString()) }
+    var useVpn by remember { mutableStateOf(prefs.useVpnOnDevice) }
     var user by remember { mutableStateOf(prefs.authUser) }
     var pass by remember { mutableStateOf(prefs.authPass) }
 
@@ -620,6 +626,33 @@ private fun SettingsSheet(onDismiss: () -> Unit) {
             )
             Spacer(Modifier.height(16.dp))
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { useVpn = !useVpn }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        "Прокси на этом телефоне (VPN)",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        "Трафик приложений самого телефона тоже пойдёт через выбранный сервер",
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Switch(checked = useVpn, onCheckedChange = { useVpn = it })
+            }
+            Spacer(Modifier.height(16.dp))
+
             Text(
                 "Пароль на прокси — нужен только в чужой сети",
                 fontSize = 13.sp,
@@ -647,6 +680,7 @@ private fun SettingsSheet(onDismiss: () -> Unit) {
                 onClick = {
                     prefs.subscriptionUrl = url
                     prefs.port = port.toIntOrNull()?.coerceIn(1024, 65535) ?: 7890
+                    prefs.useVpnOnDevice = useVpn
                     prefs.authUser = user
                     prefs.authPass = pass
                     ProxyController.applySettingsAndRestart(context)
